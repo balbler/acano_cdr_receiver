@@ -31,25 +31,10 @@ class S(BaseHTTPRequestHandler):
         # For future use, self.path contains the URL path in the request, e.g. /MyServer
         content_len = int(self.headers.get('content-length', 0))
         post_body = self.rfile.read(content_len)
-        content = xmltodict.parse(post_body.decode('utf-8'))
+        #content = xmltodict.parse(post_body.decode('utf-8'))
 
-        session_id = content['records']['@session']  # This value changes between CallBridge restarts
+        self.write_to_disk(post_body, log_file)
 
-        if '@callBridge' in content['records']:
-            callbridge_id = content['records']['@callBridge']  # Only present in clustered deployments
-        else:
-            callbridge_id = ""
-
-        # Check if there is more then one record in this request
-        if type(content['records']['record']) == xmltodict.OrderedDict:
-            record_type = content['records']['record']['@type']
-            cdr = content['records']['record']
-            self.parse_cdr(record_type, cdr, session_id, callbridge_id)
-
-        elif type(content['records']['record']) == list:
-            for cdr in content['records']['record']:
-                record_type = cdr['@type']
-                self.parse_cdr(record_type, cdr, session_id, callbridge_id)
 
     def parse_cdr(self, record_type, cdr, session_id, callbridge_id):
         """
@@ -331,7 +316,7 @@ class S(BaseHTTPRequestHandler):
 
         file = open(dest_file, 'a')
         file.write(json_output)
-        file.write("\n")
+        file.write("\n\n")
         file.close()
 
 
