@@ -32,7 +32,7 @@ class S(BaseHTTPRequestHandler):
         post_body = self.rfile.read(content_len)
         #content = xmltodict.parse(post_body.decode('utf-8'))
 
-        self.write_to_disk(post_body, log_file)
+        self.write_to_disk(post_body.decode('utf-8'), log_file)
 
 
     
